@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library" // أضف هذا السطر يدوياً
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+
+// 3. جداول المشروع (النماذج)
+
+// نموذج الدورة التدريبية
+model Course {
+  id          String    @id @default(uuid())
+  userId      String    // معرف المدرب (لربطه بـ Clerk لاحقاً)
+  title       String    @db.Text
+  description String?   @db.Text
+  imageUrl    String?   @db.Text
+  price       Float?
+  isPublished Boolean   @default(false)
+
+  chapters    Chapter[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// نموذج الدروس
+model Chapter {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  videoUrl    String?  @db.Text
+  position    Int
+  isPublished Boolean  @default(false)
+
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId])
+}
